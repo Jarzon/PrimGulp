@@ -1,15 +1,15 @@
-var es = require('event-stream');
-var gulp = require('gulp');
-var concat = require('gulp-concat');
-var rename = require("gulp-rename");
-var merge = require('gulp-merge-json');
-var del = require('del');
-var fs = require('fs');
+let fs = require('fs');
+let es = require('event-stream');
+let del = require('del');
+let gulp = require('gulp');
+let concat = require('gulp-concat');
+let rename = require("gulp-rename");
+let merge = require('gulp-merge-json');
 
 try {
-    var config = require('./app/config/assets.json');
+    let config = require('./app/config/assets.json');
 } catch(error) {
-    var config = {};
+    let config = {};
 }
 
 gulp.task('js-clean', function () {
@@ -50,7 +50,7 @@ gulp.task('rebuild-all', ['assets-reload'], function() {
 });
 
 gulp.task('js-build', ['js-clean'], function() {
-    var tasks = Object.keys(config.js.files).map(function(key) {
+    let tasks = Object.keys(config.js.files).map(function(key) {
         return gulp.src(config.js.files[key])
             .pipe(concat(key))
             .pipe(gulp.dest(config.js.destination));
@@ -60,7 +60,7 @@ gulp.task('js-build', ['js-clean'], function() {
 });
 
 gulp.task('css-build', ['css-clean'], function() {
-    var tasks = Object.keys(config.css.files).map(function(key) {
+    let tasks = Object.keys(config.css.files).map(function(key) {
         return gulp.src(config.css.files[key])
             .pipe(concat(key))
             .pipe(gulp.dest(config.css.destination));
@@ -70,7 +70,7 @@ gulp.task('css-build', ['css-clean'], function() {
 });
 
 gulp.task('img-build', ['img-clean'], function() {
-    var tasks = Object.keys(config.img.files).map(function(key) {
+    let tasks = Object.keys(config.img.files).map(function(key) {
         return gulp.src(config.img.files[key])
             .pipe(rename(function (path) {
                 path.dirname = key;
