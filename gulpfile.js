@@ -7,7 +7,7 @@ let rename = require("gulp-rename");
 let merge = require('gulp-merge-json');
 
 try {
-    let config = require('./app/config/assets.json');
+    let config = require('app/config/assets.json');
 } catch(error) {
     let config = {};
 }
@@ -34,7 +34,7 @@ gulp.task('assets-clean', function () {
 
 gulp.task('assets-reload', ['assets-build'], function(cb) {
     return setTimeout(() => {
-        fs.readFile('./app/config/assets.json', 'utf8', function (err, data) {
+        fs.readFile('app/config/assets.json', 'utf8', function (err, data) {
             if (err) cb(err);
             config = JSON.parse(data);
             cb();
@@ -102,3 +102,5 @@ gulp.task('watch', function() {
 });
 
 gulp.task('default', ['rebuild-all', 'watch'], function(){});
+
+module.exports = gulp;
