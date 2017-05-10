@@ -1,16 +1,17 @@
 {
-  "name": "PrimGulp",
+  "name": "primgulp",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Jarzon/PrimGulp.git"
   },
   "author": "Jarzon",
   "license": "MIT",
+  "version": "0.5.0",
   "bugs": {
     "url": "https://github.com/Jarzon/PrimGulp/issues"
   },
   "homepage": "https://github.com/Jarzon/PrimGulp#readme",
-  "devDependencies": {
+  "dependencies": {
     "event-stream": "^3.3.4",
     "del": "^2.2.2",
     "gulp": "^3.9.1",
