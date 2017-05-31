@@ -82,23 +82,23 @@ gulp.task('img-build', ['img-clean'], function() {
 });
 
 gulp.task('msg-build', function() {
-    gulp.src('src/*/config/messages.json')
+    gulp.src(['src/*/config/messages.json', 'vendor/*/config/messages.json'])
         .pipe(merge({fileName: 'messages.json', jsonSpace: ''}))
         .pipe(gulp.dest('app/config/'));
 });
 
 gulp.task('assets-build', ['assets-clean'], function() {
-    gulp.src('src/*/config/assets.json')
+    gulp.src(['src/*/config/assets.json', 'vendor/*/config/assets.json'])
         .pipe(merge({fileName: 'assets.json', jsonSpace: '', concatArrays: true}))
         .pipe(gulp.dest('app/config/'));
 });
 
 gulp.task('watch', function() {
-    gulp.watch('src/*/assets/js/*.js', ['js-build']);
-    gulp.watch('src/*/assets/css/*.css', ['css-build']);
-    gulp.watch('src/*/assets/img/*', ['img-build']);
-    gulp.watch('src/*/config/messages.json', ['msg-clean', 'msg-build']);
-    gulp.watch('src/*/config/assets.json', ['rebuild-all']);
+    gulp.watch(['src/*/assets/js/*.js', 'vendor/*/assets/js/*.js'], ['js-build']);
+    gulp.watch(['src/*/assets/css/*.css', 'vendor/*/assets/css/*.css'], ['css-build']);
+    gulp.watch(['src/*/assets/img/*', 'vendor/*/assets/img/*'], ['img-build']);
+    gulp.watch(['src/*/config/messages.json', 'vendor/*/config/messages.json'], ['msg-clean', 'msg-build']);
+    gulp.watch(['src/*/config/assets.json', 'vendor/*/config/assets.json'], ['rebuild-all']);
 });
 
 gulp.task('default', ['rebuild-all', 'watch'], function(){});
