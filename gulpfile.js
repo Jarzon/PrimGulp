@@ -44,9 +44,7 @@ gulp.task('assets-reload', ['assets-build'], function(cb) {
 });
 
 gulp.task('rebuild-all', ['assets-reload'], function() {
-    gulp.start('js-build');
-    gulp.start('css-build');
-    gulp.start('img-build');
+    
 });
 
 gulp.task('js-build', ['js-clean'], function() {
