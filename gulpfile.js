@@ -24,6 +24,10 @@ gulp.task('img-clean', function () {
     return del(['public/img/*']);
 });
 
+gulp.task('files-clean', function () {
+    return del(['public/files/*']);
+});
+
 gulp.task('msg-clean', function () {
     return del(['app/config/messages.json']);
 });
@@ -74,6 +78,18 @@ gulp.task('img-build', ['img-clean'], function() {
                 path.dirname = key;
             }))
             .pipe(gulp.dest(config.img.destination));
+    });
+
+    return es.concat.apply(null, tasks);
+});
+
+gulp.task('files-build', ['files-clean'], function() {
+    let tasks = Object.keys(config.files.files).map(function(key) {
+        return gulp.src(config.files.files[key])
+            .pipe(rename(function (path) {
+                path.dirname = key;
+            }))
+            .pipe(gulp.dest(config.files.destination));
     });
 
     return es.concat.apply(null, tasks);
