@@ -111,6 +111,7 @@ gulp.task('watch', function() {
     gulp.watch(['src/*/assets/js/*.js', 'vendor/*/assets/js/*.js'], ['js-build']);
     gulp.watch(['src/*/assets/css/*.css', 'vendor/*/assets/css/*.css'], ['css-build']);
     gulp.watch(['src/*/assets/img/*', 'vendor/*/assets/img/*'], ['img-build']);
+    gulp.watch(['src/*/assets/files/*', 'vendor/*/assets/files/*'], ['files-build']);
     gulp.watch(['src/*/config/messages.json', 'vendor/*/config/messages.json'], ['msg-clean', 'msg-build']);
     gulp.watch(['src/*/config/assets.json', 'vendor/*/config/assets.json'], ['rebuild-all']);
 });
