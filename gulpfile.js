@@ -40,11 +40,16 @@ gulp.task('assets-reload', ['assets-build'], function(cb) {
     return setTimeout(() => {
         fs.readFile('app/config/assets.json', 'utf8', function (err, data) {
             if (err) cb(err);
-            config = JSON.parse(data);
+
+            try {
+                config = JSON.parse(data);
+            } catch(error) {
+                cb(error);
+            }
+
             cb();
         });
     }, 50);
-
 });
 
 gulp.task('rebuild-all', ['assets-reload'], function() {
