@@ -100,16 +100,24 @@ gulp.task('files-build', ['files-clean'], function() {
     return es.concat.apply(null, tasks);
 });
 
-gulp.task('msg-build', function() {
-    gulp.src(['src/*/config/messages.json', 'vendor/*/config/messages.json'])
-        .pipe(merge({fileName: 'messages.json', jsonSpace: ''}))
-        .pipe(gulp.dest('app/config/'));
+gulp.task('msg-build', function(cb) {
+    try {
+        gulp.src(['src/*/config/messages.json', 'vendor/*/config/messages.json'])
+            .pipe(merge({fileName: 'messages.json', jsonSpace: ''}))
+            .pipe(gulp.dest('app/config/'));
+    } catch(error) {
+        cb(error);
+    }
 });
 
-gulp.task('assets-build', ['assets-clean'], function() {
-    gulp.src(['src/*/config/assets.json', 'vendor/*/config/assets.json'])
-        .pipe(merge({fileName: 'assets.json', jsonSpace: '', concatArrays: true}))
-        .pipe(gulp.dest('app/config/'));
+gulp.task('assets-build', ['assets-clean'], function(cb) {
+    try {
+        gulp.src(['src/*/config/assets.json', 'vendor/*/config/assets.json'])
+            .pipe(merge({fileName: 'assets.json', jsonSpace: '', concatArrays: true}))
+            .pipe(gulp.dest('app/config/'));
+    } catch(error) {
+        cb(error);
+    }
 });
 
 gulp.task('watch', function() {
