@@ -36,24 +36,18 @@ gulp.task('assets-clean', function () {
     return del(['app/config/assets.json']);
 });
 
-gulp.task('assets-reload', ['assets-build'], function(cb) {
-    return setTimeout(() => {
-        fs.readFile('app/config/assets.json', 'utf8', function (err, data) {
-            if (err) cb(err);
+gulp.task('assets-reload', function(cb) {
+    fs.readFile('app/config/assets.json', 'utf8', function (err, data) {
+        if (err) cb(err);
 
-            try {
-                config = JSON.parse(data);
-            } catch(error) {
-                cb(error);
-            }
+        try {
+            config = JSON.parse(data);
+        } catch(error) {
+            cb(error);
+        }
 
-            cb();
-        });
-    }, 50);
-});
-
-gulp.task('rebuild-all', ['assets-reload'], function() {
-    
+        cb();
+    });
 });
 
 gulp.task('js-build', ['js-clean'], function() {
@@ -101,23 +95,25 @@ gulp.task('files-build', ['files-clean'], function() {
 });
 
 gulp.task('msg-build', function(cb) {
-    try {
-        gulp.src(['src/*/config/messages.json', 'vendor/*/config/messages.json'])
-            .pipe(merge({fileName: 'messages.json', jsonSpace: ''}))
-            .pipe(gulp.dest('app/config/'));
-    } catch(error) {
-        cb(error);
-    }
+    return gulp.src(['src/*/config/messages.json', 'vendor/*/config/messages.json'])
+        .pipe(
+            merge({fileName: 'messages.json', jsonSpace: ''})
+                .on('error', function(err) {
+                    cb(err);
+                })
+        )
+        .pipe(gulp.dest('app/config/'));
 });
 
 gulp.task('assets-build', ['assets-clean'], function(cb) {
-    try {
-        gulp.src(['src/*/config/assets.json', 'vendor/*/config/assets.json'])
-            .pipe(merge({fileName: 'assets.json', jsonSpace: '', concatArrays: true}))
-            .pipe(gulp.dest('app/config/'));
-    } catch(error) {
-        cb(error);
-    }
+    return gulp.src(['src/*/config/assets.json', 'vendor/*/config/assets.json'])
+        .pipe(
+            merge({fileName: 'assets.json', jsonSpace: '', concatArrays: true})
+                .on('error', function(err) {
+                    cb(err);
+                })
+        )
+        .pipe(gulp.dest('app/config/'));
 });
 
 gulp.task('watch', function() {
@@ -126,9 +122,10 @@ gulp.task('watch', function() {
     gulp.watch(['src/*/assets/img/*', 'vendor/*/assets/img/*'], ['img-build']);
     gulp.watch(['src/*/assets/files/*', 'vendor/*/assets/files/*'], ['files-build']);
     gulp.watch(['src/*/config/messages.json', 'vendor/*/config/messages.json'], ['msg-clean', 'msg-build']);
-    gulp.watch(['src/*/config/assets.json', 'vendor/*/config/assets.json'], ['rebuild-all']);
+    gulp.watch(['src/*/config/assets.json', 'vendor/*/config/assets.json'], ['assets-build']);
+    gulp.watch(['app/config/assets.json'], ['assets-reload']);
 });
 
-gulp.task('default', ['rebuild-all', 'watch'], function(){});
+gulp.task('default', ['assets-build', 'watch'], function(){});
 
 module.exports = gulp;
