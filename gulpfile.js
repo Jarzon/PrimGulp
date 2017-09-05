@@ -126,6 +126,6 @@ gulp.task('watch', function() {
     gulp.watch(['app/config/assets.json'], ['assets-reload']);
 });
 
-gulp.task('default', ['assets-build', 'watch'], function(){});
+gulp.task('default', ['watch', 'assets-build'], function(){});
 
 module.exports = gulp;
