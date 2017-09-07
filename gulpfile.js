@@ -6,11 +6,7 @@ let concat = require('gulp-concat');
 let rename = require("gulp-rename");
 let merge = require('gulp-merge-json');
 
-try {
-    let config = require('app/config/assets.json');
-} catch(error) {
-    let config = {};
-}
+let config = {};
 
 gulp.task('js-clean', function () {
     return del(['public/js/*']);
@@ -30,10 +26,6 @@ gulp.task('files-clean', function () {
 
 gulp.task('msg-clean', function () {
     return del(['app/config/messages.json']);
-});
-
-gulp.task('assets-clean', function () {
-    return del(['app/config/assets.json']);
 });
 
 gulp.task('assets-reload', function(cb) {
@@ -105,7 +97,7 @@ gulp.task('msg-build', function(cb) {
         .pipe(gulp.dest('app/config/'));
 });
 
-gulp.task('assets-build', ['assets-clean'], function(cb) {
+gulp.task('assets-build', function(cb) {
     return gulp.src(['src/*/config/assets.json', 'vendor/*/config/assets.json'])
         .pipe(
             merge({fileName: 'assets.json', jsonSpace: '', concatArrays: true})
@@ -117,13 +109,13 @@ gulp.task('assets-build', ['assets-clean'], function(cb) {
 });
 
 gulp.task('watch', function() {
+    gulp.watch(['app/config/assets.json'], ['assets-reload']);
     gulp.watch(['src/*/assets/js/*.js', 'vendor/*/assets/js/*.js'], ['js-build']);
     gulp.watch(['src/*/assets/css/*.css', 'vendor/*/assets/css/*.css'], ['css-build']);
     gulp.watch(['src/*/assets/img/*', 'vendor/*/assets/img/*'], ['img-build']);
     gulp.watch(['src/*/assets/files/*', 'vendor/*/assets/files/*'], ['files-build']);
     gulp.watch(['src/*/config/messages.json', 'vendor/*/config/messages.json'], ['msg-clean', 'msg-build']);
     gulp.watch(['src/*/config/assets.json', 'vendor/*/config/assets.json'], ['assets-build']);
-    gulp.watch(['app/config/assets.json'], ['assets-reload']);
 });
 
 gulp.task('default', ['watch', 'assets-build'], function(){});
