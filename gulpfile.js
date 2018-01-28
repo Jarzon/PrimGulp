@@ -8,26 +8,6 @@ let merge = require('gulp-merge-json');
 
 let config = {};
 
-gulp.task('js-clean', function () {
-    return del(['public/js/*']);
-});
-
-gulp.task('css-clean', function () {
-    return del(['public/css/*']);
-});
-
-gulp.task('img-clean', function () {
-    return del(['public/img/*']);
-});
-
-gulp.task('files-clean', function () {
-    return del(['public/files/*']);
-});
-
-gulp.task('msg-clean', function () {
-    return del(['app/config/messages.json']);
-});
-
 function jsBuild() {
     let tasks = Object.keys(config.js.files).map(function(key) {
         return gulp.src(config.js.files[key])
@@ -110,48 +90,18 @@ function assetsReload(cb) {
 }
 
 function watch() {
-    gulp.watch(['src/*/assets/js/*.js', 'vendor/*/*/assets/js/*.js'], ['js-build']);
-    gulp.watch(['src/*/assets/css/*.css', 'vendor/*/*/assets/css/*.css'], ['css-build']);
-    gulp.watch(['src/*/assets/img/*', 'vendor/*/*/assets/img/*'], ['img-build']);
-    gulp.watch(['src/*/assets/files/*', 'vendor/*/*/assets/files/*'], ['files-build']);
-    gulp.watch(['src/*/config/messages.json', 'vendor/*/*/config/messages.json'], ['msg-clean', 'msg-build']);
-    gulp.watch(['src/*/config/assets.json', 'vendor/*/*/config/assets.json'], ['assets-build']);
-    gulp.watch(['app/config/assets.json'], ['assets-reload']);
+    gulp.watch(['src/*/assets/js/*.js', 'vendor/*/*/assets/js/*.js'], jsBuild);
+    gulp.watch(['src/*/assets/css/*.css', 'vendor/*/*/assets/css/*.css'], cssBuild);
+    gulp.watch(['src/*/assets/img/*', 'vendor/*/*/assets/img/*'], imgBuild);
+    gulp.watch(['src/*/assets/files/*', 'vendor/*/*/assets/files/*'], filesBuild);
+    gulp.watch(['src/*/config/messages.json', 'vendor/*/*/config/messages.json'], msgBuild);
+    gulp.watch(['src/*/config/assets.json', 'vendor/*/*/config/assets.json'], assetsBuild);
+    gulp.watch(['app/config/assets.json'], assetsReload);
 }
 
-gulp.task('js-build', ['js-clean'], function() {
-    return jsBuild();
-});
+gulp.task('default', defaultTask);
 
-gulp.task('css-build', ['css-clean'], function() {
-    return cssBuild();
-});
-
-gulp.task('img-build', ['img-clean'], function() {
-    return imgBuild();
-});
-
-gulp.task('files-build', ['files-clean'], function() {
-    return filesBuild();
-});
-
-gulp.task('msg-build', function(cb) {
-    return msgBuild(cb);
-});
-
-gulp.task('assets-build', function(cb) {
-    return assetsBuild(cb);
-});
-
-gulp.task('assets-reload', function(cb) {
-    assetsReload(cb);
-});
-
-gulp.task('watch', function() {
-    watch();
-});
-
-gulp.task('default', [], function() {
+function defaultTask() {
     assetsBuild(function() {
         assetsReload(function() {
             msgBuild({});
@@ -163,6 +113,4 @@ gulp.task('default', [], function() {
     });
 
     watch();
-});
-
-module.exports = gulp;
+}

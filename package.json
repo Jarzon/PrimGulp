@@ -6,7 +6,7 @@
   },
   "author": "Jarzon",
   "license": "MIT",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "main": "gulpfile.js",
   "bugs": {
     "url": "https://github.com/Jarzon/PrimGulp/issues"
@@ -15,7 +15,7 @@
   "dependencies": {
     "event-stream": "^3.3.4",
     "del": "^2.2.2",
-    "gulp": "^3.9.1",
+    "gulp": "~4.0.0",
     "gulp-concat": "^2.6.1",
     "gulp-rename": "^1.2.2",
     "gulp-merge-json": "^1.0.0"
