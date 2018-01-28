@@ -6,12 +6,18 @@ let concat = require('gulp-concat');
 let rename = require("gulp-rename");
 let merge = require('gulp-merge-json');
 
+let uglifyjs = require('uglify-es');
+let composer = require('gulp-uglify/composer');
+
+let minify = composer(uglifyjs, console);
+
 let config = {};
 
 function jsBuild() {
     let tasks = Object.keys(config.js.files).map(function(key) {
         return gulp.src(config.js.files[key])
             .pipe(concat(key))
+            .pipe(minify())
             .pipe(gulp.dest(config.js.destination));
     });
 
