@@ -10,6 +10,7 @@ let uglifyjs = require('uglify-es');
 let composer = require('gulp-uglify/composer');
 
 let minify = composer(uglifyjs, console);
+let cleanCSS = require('gulp-clean-css');
 
 let config = {};
 
@@ -17,7 +18,9 @@ function jsBuild() {
     let tasks = Object.keys(config.js.files).map(function(key) {
         return gulp.src(config.js.files[key])
             .pipe(concat(key))
-            .pipe(minify())
+            .pipe(minify({
+                mangle: true
+            }))
             .pipe(gulp.dest(config.js.destination));
     });
 
@@ -28,6 +31,7 @@ function cssBuild() {
     let tasks = Object.keys(config.css.files).map(function(key) {
         return gulp.src(config.css.files[key])
             .pipe(concat(key))
+            .pipe(cleanCSS())
             .pipe(gulp.dest(config.css.destination));
     });
 
