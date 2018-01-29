@@ -14,7 +14,7 @@ let cleanCSS = require('gulp-clean-css');
 
 let config = {};
 
-function jsBuild() {
+gulp.task('jsBuild', function (done) {
     let tasks = Object.keys(config.js.files).map(function(key) {
         return gulp.src(config.js.files[key])
             .pipe(concat(key))
@@ -24,10 +24,12 @@ function jsBuild() {
             .pipe(gulp.dest(config.js.destination));
     });
 
-    return es.concat.apply(null, tasks);
-}
+    es.concat.apply(null, tasks);
 
-function cssBuild() {
+    done();
+});
+
+gulp.task('cssBuild', function (done) {
     let tasks = Object.keys(config.css.files).map(function(key) {
         return gulp.src(config.css.files[key])
             .pipe(concat(key))
@@ -35,10 +37,12 @@ function cssBuild() {
             .pipe(gulp.dest(config.css.destination));
     });
 
-    return es.concat.apply(null, tasks);
-}
+    es.concat.apply(null, tasks);
 
-function imgBuild() {
+    done();
+});
+
+gulp.task('imgBuild', function (done) {
     let tasks = Object.keys(config.img.files).map(function(key) {
         return gulp.src(config.img.files[key])
             .pipe(rename(function (path) {
@@ -47,10 +51,12 @@ function imgBuild() {
             .pipe(gulp.dest(config.img.destination));
     });
 
-    return es.concat.apply(null, tasks);
-}
+    es.concat.apply(null, tasks);
 
-function filesBuild() {
+    done()
+});
+
+gulp.task('filesBuild', function (done) {
     let tasks = Object.keys(config.files.files).map(function(key) {
         return gulp.src(config.files.files[key])
             .pipe(rename(function (path) {
@@ -59,68 +65,61 @@ function filesBuild() {
             .pipe(gulp.dest(config.files.destination));
     });
 
-    return es.concat.apply(null, tasks);
-}
+    es.concat.apply(null, tasks);
 
-function msgBuild(cb) {
-    return gulp.src(['src/*/config/messages.json', 'vendor/*/*/config/messages.json'])
+    done();
+});
+
+gulp.task('msgBuild', function (done) {
+    gulp.src(['src/*/config/messages.json', 'vendor/*/*/config/messages.json'])
         .pipe(
             merge({fileName: 'messages.json', jsonSpace: ''})
                 .on('error', function(err) {
-                    cb(err);
+                    done(err);
                 })
         )
         .pipe(gulp.dest('app/config/'));
-}
 
-function assetsBuild(cb) {
+    done();
+});
+
+gulp.task('assetsBuild', function (done) {
     return gulp.src(['src/*/config/assets.json', 'vendor/*/*/config/assets.json'])
         .pipe(
             merge({fileName: 'assets.json', jsonSpace: '', concatArrays: true})
                 .on('error', function(err) {
-                    cb(err);
+                    done(err);
                 })
         )
         .pipe(gulp.dest('app/config/'))
-        .on('end', cb);
-}
+        .on('end', done);
+});
 
-function assetsReload(cb) {
+gulp.task('assetsReload', function (done) {
     fs.readFile('app/config/assets.json', 'utf8', function (err, data) {
         if (err) cb(err);
 
         try {
             config = JSON.parse(data);
         } catch(error) {
-            cb(error);
+            done(error);
         }
 
-        cb();
+        done();
     });
-}
+});
 
-function watch() {
-    gulp.watch(['src/*/assets/js/*.js', 'vendor/*/*/assets/js/*.js'], jsBuild);
-    gulp.watch(['src/*/assets/css/*.css', 'vendor/*/*/assets/css/*.css'], cssBuild);
-    gulp.watch(['src/*/assets/img/*', 'vendor/*/*/assets/img/*'], imgBuild);
-    gulp.watch(['src/*/assets/files/*', 'vendor/*/*/assets/files/*'], filesBuild);
-    gulp.watch(['src/*/config/messages.json', 'vendor/*/*/config/messages.json'], msgBuild);
-    gulp.watch(['src/*/config/assets.json', 'vendor/*/*/config/assets.json'], assetsBuild);
-    gulp.watch(['app/config/assets.json'], assetsReload);
-}
+gulp.task('watch', function (done) {
+        gulp.watch(['src/*/assets/js/*.js', 'vendor/*/*/assets/js/*.js'], gulp.series('jsBuild'));
+        gulp.watch(['src/*/assets/css/*.css', 'vendor/*/*/assets/css/*.css'], gulp.series('cssBuild'));
+        gulp.watch(['src/*/assets/img/*', 'vendor/*/*/assets/img/*'], gulp.series('imgBuild'));
+        gulp.watch(['src/*/assets/files/*', 'vendor/*/*/assets/files/*'], gulp.series('filesBuild'));
+        gulp.watch(['src/*/config/messages.json', 'vendor/*/*/config/messages.json'], gulp.series('msgBuild'));
+        gulp.watch(['src/*/config/assets.json', 'vendor/*/*/config/assets.json'], gulp.series('assetsBuild'));
+        gulp.watch(['app/config/assets.json'], gulp.series('assetsReload'));
 
-gulp.task('default', defaultTask);
+        done();
+    }
+);
 
-function defaultTask() {
-    assetsBuild(function() {
-        assetsReload(function() {
-            msgBuild({});
-            filesBuild();
-            imgBuild();
-            cssBuild();
-            jsBuild();
-        });
-    });
-
-    watch();
-}
+gulp.task('default', gulp.series('assetsBuild', 'assetsReload', gulp.parallel('msgBuild', 'filesBuild', 'imgBuild', 'cssBuild', 'jsBuild'), 'watch'));
