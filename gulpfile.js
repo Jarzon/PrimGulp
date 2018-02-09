@@ -19,27 +19,39 @@ gulp.task('jsBuild', function (done) {
         return gulp.src(config.js.files[key])
             .pipe(concat(key))
             .pipe(minify({
-                mangle: true
-            }))
-            .pipe(gulp.dest(config.js.destination));
+                    mangle: true
+                })
+                    .on('error', function(err) {
+                        console.log("JS minify error: " + err.cause.message + " in " + err.fileName);
+                        done();
+                    })
+            )
+            .pipe(gulp.dest(config.js.destination))
+            .on('end', function() {
+                done();
+            });
     });
 
     es.concat.apply(null, tasks);
-
-    done();
 });
 
 gulp.task('cssBuild', function (done) {
     let tasks = Object.keys(config.css.files).map(function(key) {
         return gulp.src(config.css.files[key])
             .pipe(concat(key))
-            .pipe(cleanCSS())
-            .pipe(gulp.dest(config.css.destination));
+            .pipe(cleanCSS()
+                .on('error', function(err) {
+                    console.log("CSS minify error: " + err.cause.message + " in " + err.fileNam);
+                    done();
+                })
+            )
+            .pipe(gulp.dest(config.css.destination))
+            .on('end', function() {
+                done();
+            });
     });
 
     es.concat.apply(null, tasks);
-
-    done();
 });
 
 gulp.task('imgBuild', function (done) {
@@ -75,7 +87,8 @@ gulp.task('msgBuild', function (done) {
         .pipe(
             merge({fileName: 'messages.json', jsonSpace: ''})
                 .on('error', function(err) {
-                    done(err);
+                    console.log("Messages build error: " + err.cause.message + " in " + err.fileName + " ");
+                    done();
                 })
         )
         .pipe(gulp.dest('app/config/'));
@@ -88,7 +101,8 @@ gulp.task('assetsBuild', function (done) {
         .pipe(
             merge({fileName: 'assets.json', jsonSpace: '', concatArrays: true})
                 .on('error', function(err) {
-                    done(err);
+                    console.log("Assets build error: " + err.cause.message + " in " + err.fileName + " ");
+                    done();
                 })
         )
         .pipe(gulp.dest('app/config/'))
