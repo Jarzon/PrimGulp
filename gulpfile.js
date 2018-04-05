@@ -123,6 +123,15 @@ gulp.task('assetsReload', function (done) {
     });
 });
 
+gulp.task('stop', function (cb) {
+    fs.unlink('./.stop.primgulp', function(error) {
+        if (err) cb(error);
+    }.bind(cb));
+    console.log('Stop Gulp to update depedencies');
+    cb();
+    process.exit(0);
+});
+
 gulp.task('watch', function (done) {
         gulp.watch(['src/*/assets/js/*.js', 'vendor/*/*/assets/js/*.js'], gulp.series('jsBuild'));
         gulp.watch(['src/*/assets/css/*.css', 'vendor/*/*/assets/css/*.css'], gulp.series('cssBuild'));
@@ -131,6 +140,7 @@ gulp.task('watch', function (done) {
         gulp.watch(['src/*/config/messages.json', 'vendor/*/*/config/messages.json'], gulp.series('msgBuild'));
         gulp.watch(['src/*/config/assets.json', 'vendor/*/*/config/assets.json'], gulp.series('assetsBuild'));
         gulp.watch(['app/config/assets.json'], gulp.series('assetsReload'));
+        gulp.watch(['.stop.primgulp'], gulp.series('stop'));
 
         done();
     }
