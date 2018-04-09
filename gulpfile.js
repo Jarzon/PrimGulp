@@ -85,7 +85,19 @@ gulp.task('filesBuild', function (done) {
 gulp.task('msgBuild', function (done) {
     gulp.src(['src/*/config/messages.json', 'vendor/*/*/config/messages.json'])
         .pipe(
-            merge({fileName: 'messages.json', jsonSpace: ''})
+            merge({fileName: 'messages.json', jsonSpace: '', edit: (json, file) => {
+                    // Transform array message into string to allow typing message on multiple lines in the JSON file
+
+                    Object.keys(json).forEach(key => {
+                        Object.keys(json[key]).forEach(subkey => {
+                            if (typeof json[key][subkey] !== 'string') {
+                                json[key][subkey] = json[key][subkey].join('');
+                            }
+                        });
+                    });
+
+                    return json;
+                }})
                 .on('error', function(err) {
                     console.log("Messages build error: " + err.cause.message + " in " + err.fileName + " ");
                     done();
