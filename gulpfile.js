@@ -99,7 +99,7 @@ gulp.task('msgBuild', function (done) {
                     return json;
                 }})
                 .on('error', function(err) {
-                    console.log("Messages build error: " + err.cause.message + " in " + err.fileName + " ");
+                    console.log("Messages build error: " + err.message + " in " + err.fileName + " ");
                     done();
                 })
         )
@@ -113,7 +113,7 @@ gulp.task('assetsBuild', function (done) {
         .pipe(
             merge({fileName: 'assets.json', jsonSpace: '', concatArrays: true})
                 .on('error', function(err) {
-                    console.log("Assets build error: " + err.cause.message + " in " + err.fileName + " ");
+                    console.log("Assets build error: " + err.message + " in " + err.fileName + " ");
                     done();
                 })
         )
