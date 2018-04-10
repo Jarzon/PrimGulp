@@ -40,71 +40,87 @@ gulp.task('filesRemove', function (done) {
 
 gulp.task('jsBuild', function (done) {
     let tasks = Object.keys(config.js.files).map(function(key) {
-        return gulp.src(config.js.files[key])
-            .pipe(concat(key))
-            .pipe(minify({
-                    mangle: true
-                })
-                    .on('error', function(err) {
-                        console.log("JS minify error: " + err.cause.message + " in " + err.fileName);
-                        done();
-                    })
-            )
-            .pipe(gulp.dest(config.js.destination))
-            .on('end', function() {
-                done();
-            });
+        return buildJS(key, done);
     });
 
     es.concat.apply(null, tasks);
 });
+
+function buildJS(key, done) {
+    return gulp.src(config.js.files[key])
+        .pipe(concat(key))
+        .pipe(minify({
+                mangle: true
+            })
+                .on('error', function(err) {
+                    console.log("JS minify error: " + err.cause.message + " in " + err.fileName);
+                })
+        )
+        .pipe(gulp.dest(config.js.destination))
+        .on('end', function() {
+            done();
+        });
+}
 
 gulp.task('cssBuild', function (done) {
     let tasks = Object.keys(config.css.files).map(function(key) {
-        return gulp.src(config.css.files[key])
-            .pipe(concat(key))
-            .pipe(cleanCSS()
-                .on('error', function(err) {
-                    console.log("CSS minify error: " + err.cause.message + " in " + err.fileNam);
-                    done();
-                })
-            )
-            .pipe(gulp.dest(config.css.destination))
-            .on('end', function() {
-                done();
-            });
+        return buildCSS(key, done);
     });
 
     es.concat.apply(null, tasks);
 });
+
+function buildCSS(key, done) {
+    return gulp.src(config.css.files[key])
+        .pipe(concat(key))
+        .pipe(cleanCSS()
+            .on('error', function(err) {
+                console.log("CSS minify error: " + err.cause.message + " in " + err.fileNam);
+            })
+        )
+        .pipe(gulp.dest(config.css.destination))
+        .on('end', function() {
+            done();
+        });
+}
 
 gulp.task('imgBuild', function (done) {
     let tasks = Object.keys(config.img.files).map(function(key) {
-        return gulp.src(config.img.files[key])
-            .pipe(rename(function (path) {
-                path.dirname = key;
-            }))
-            .pipe(gulp.dest(config.img.destination));
+        return buildImg(key, done);
     });
 
     es.concat.apply(null, tasks);
-
-    done()
 });
+
+function buildImg(key, done) {
+    return gulp.src(config.img.files[key])
+        .pipe(rename(function (path) {
+            path.dirname = key;
+        }))
+        .pipe(gulp.dest(config.img.destination))
+        .on('end', function() {
+            done();
+        });
+}
 
 gulp.task('filesBuild', function (done) {
     let tasks = Object.keys(config.files.files).map(function(key) {
-        return gulp.src(config.files.files[key])
-            .pipe(rename(function (path) {
-                path.dirname = key;
-            }))
-            .pipe(gulp.dest(config.files.destination));
+        return buildFiles(key, done);
     });
 
     es.concat.apply(null, tasks);
-
-    done();
 });
+
+function buildFiles(key, done) {
+    return gulp.src(config.files.files[key])
+        .pipe(rename(function (path) {
+            path.dirname = key;
+        }))
+        .pipe(gulp.dest(config.files.destination))
+        .on('end', function() {
+            done();
+        });
+}
 
 gulp.task('msgBuild', function (done) {
     gulp.src(['src/*/config/messages.json', 'vendor/*/*/config/messages.json'])
@@ -169,10 +185,30 @@ gulp.task('stop', function (cb) {
 });
 
 gulp.task('watch', function (done) {
-    gulp.watch(['src/*/assets/js/*.js', 'vendor/*/*/assets/js/*.js'], gulp.series('jsRemove', 'jsBuild'));
-    gulp.watch(['src/*/assets/css/*.css', 'vendor/*/*/assets/css/*.css'], gulp.series('cssRemove', 'cssBuild'));
-    gulp.watch(['src/*/assets/img/*', 'vendor/*/*/assets/img/*'], gulp.series('imgRemove', 'imgBuild'));
-    gulp.watch(['src/*/assets/files/*', 'vendor/*/*/assets/files/*'], gulp.series('filesRemove', 'filesBuild'));
+    Object.keys(config.js.files).forEach((key) => {
+        gulp.watch(config.js.files[key], null, (done) => {
+            buildJS(key, done);
+        });
+    });
+
+    Object.keys(config.css.files).forEach((key) => {
+        gulp.watch(config.css.files[key], null, (done) => {
+            buildCSS(key, done);
+        });
+    });
+
+    Object.keys(config.img.files).forEach((key) => {
+        gulp.watch(config.img.files[key], null, (done) => {
+            buildImg(key, done);
+        });
+    });
+
+    Object.keys(config.files.files).forEach((key) => {
+        gulp.watch(config.files.files[key], null, (done) => {
+            buildFiles(key, done);
+        });
+    });
+
     gulp.watch(['src/*/config/messages.json', 'vendor/*/*/config/messages.json'], gulp.series('msgBuild'));
     gulp.watch(['src/*/config/assets.json', 'vendor/*/*/config/assets.json'], gulp.series('assetsBuild'));
     gulp.watch(['app/config/assets.json'], gulp.series('assetsReload'));
@@ -184,7 +220,8 @@ gulp.task('watch', function (done) {
 gulp.task('default',
     gulp.series('assetsBuild', 'assetsReload',
         gulp.parallel('filesRemove', 'imgRemove', 'cssRemove', 'jsRemove'),
-        gulp.parallel('msgBuild', 'filesBuild', 'imgBuild', 'cssBuild', 'jsBuild'),
+        'msgBuild', 'filesBuild', 'imgBuild',
+        gulp.parallel('cssBuild', 'jsBuild'),
         'watch'
     )
 );
