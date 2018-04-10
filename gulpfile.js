@@ -14,6 +14,30 @@ let cleanCSS = require('gulp-clean-css');
 
 let config = {};
 
+gulp.task('jsRemove', function (done) {
+    del(config.js.destination);
+
+    done();
+});
+
+gulp.task('cssRemove', function (done) {
+    del(config.css.destination);
+
+    done();
+});
+
+gulp.task('imgRemove', function (done) {
+    del(config.img.destination);
+
+    done();
+});
+
+gulp.task('filesRemove', function (done) {
+    del(config.files.destination);
+
+    done();
+});
+
 gulp.task('jsBuild', function (done) {
     let tasks = Object.keys(config.js.files).map(function(key) {
         return gulp.src(config.js.files[key])
@@ -145,17 +169,22 @@ gulp.task('stop', function (cb) {
 });
 
 gulp.task('watch', function (done) {
-        gulp.watch(['src/*/assets/js/*.js', 'vendor/*/*/assets/js/*.js'], gulp.series('jsBuild'));
-        gulp.watch(['src/*/assets/css/*.css', 'vendor/*/*/assets/css/*.css'], gulp.series('cssBuild'));
-        gulp.watch(['src/*/assets/img/*', 'vendor/*/*/assets/img/*'], gulp.series('imgBuild'));
-        gulp.watch(['src/*/assets/files/*', 'vendor/*/*/assets/files/*'], gulp.series('filesBuild'));
-        gulp.watch(['src/*/config/messages.json', 'vendor/*/*/config/messages.json'], gulp.series('msgBuild'));
-        gulp.watch(['src/*/config/assets.json', 'vendor/*/*/config/assets.json'], gulp.series('assetsBuild'));
-        gulp.watch(['app/config/assets.json'], gulp.series('assetsReload'));
-        gulp.watch(['.stop.primgulp'], gulp.series('stop'));
+    gulp.watch(['src/*/assets/js/*.js', 'vendor/*/*/assets/js/*.js'], gulp.series('jsRemove', 'jsBuild'));
+    gulp.watch(['src/*/assets/css/*.css', 'vendor/*/*/assets/css/*.css'], gulp.series('cssRemove', 'cssBuild'));
+    gulp.watch(['src/*/assets/img/*', 'vendor/*/*/assets/img/*'], gulp.series('imgRemove', 'imgBuild'));
+    gulp.watch(['src/*/assets/files/*', 'vendor/*/*/assets/files/*'], gulp.series('filesRemove', 'filesBuild'));
+    gulp.watch(['src/*/config/messages.json', 'vendor/*/*/config/messages.json'], gulp.series('msgBuild'));
+    gulp.watch(['src/*/config/assets.json', 'vendor/*/*/config/assets.json'], gulp.series('assetsBuild'));
+    gulp.watch(['app/config/assets.json'], gulp.series('assetsReload'));
+    gulp.watch(['.stop.primgulp'], gulp.series('stop'));
 
-        done();
-    }
+    done();
+});
+
+gulp.task('default',
+    gulp.series('assetsBuild', 'assetsReload',
+        gulp.parallel('filesRemove', 'imgRemove', 'cssRemove', 'jsRemove'),
+        gulp.parallel('msgBuild', 'filesBuild', 'imgBuild', 'cssBuild', 'jsBuild'),
+        'watch'
+    )
 );
-
-gulp.task('default', gulp.series('assetsBuild', 'assetsReload', gulp.parallel('msgBuild', 'filesBuild', 'imgBuild', 'cssBuild', 'jsBuild'), 'watch'));
