@@ -54,6 +54,7 @@ function buildJS(key, done) {
             })
                 .on('error', function(err) {
                     console.log("JS minify error: " + err.cause.message + " in " + err.fileName);
+                    done();
                 })
         )
         .pipe(gulp.dest(config.js.destination))
@@ -76,6 +77,7 @@ function buildCSS(key, done) {
         .pipe(cleanCSS()
             .on('error', function(err) {
                 console.log("CSS minify error: " + err.cause.message + " in " + err.fileNam);
+                done();
             })
         )
         .pipe(gulp.dest(config.css.destination))
