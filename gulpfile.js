@@ -2,6 +2,7 @@ let fs = require('fs');
 let es = require('event-stream');
 let del = require('del');
 let gulp = require('gulp');
+var util = require('gulp-util');
 let concat = require('gulp-concat');
 let rename = require("gulp-rename");
 let merge = require('gulp-merge-json');
@@ -12,34 +13,38 @@ let composer = require('gulp-uglify/composer');
 let minify = composer(uglifyjs, console);
 let cleanCSS = require('gulp-clean-css');
 
-let config = {};
+let config = {
+    production: !!util.env.production
+};
+
+let assets = {};
 
 gulp.task('jsRemove', function (done) {
-    del(config.js.destination);
+    del(assets.js.destination);
 
     done();
 });
 
 gulp.task('cssRemove', function (done) {
-    del(config.css.destination);
+    del(assets.css.destination);
 
     done();
 });
 
 gulp.task('imgRemove', function (done) {
-    del(config.img.destination);
+    del(assets.img.destination);
 
     done();
 });
 
 gulp.task('filesRemove', function (done) {
-    del(config.files.destination);
+    del(assets.files.destination);
 
     done();
 });
 
 gulp.task('jsBuild', function (done) {
-    let tasks = Object.keys(config.js.files).map(function(key) {
+    let tasks = Object.keys(assets.js.files).map(function(key) {
         return buildJS(key, done);
     });
 
@@ -47,9 +52,10 @@ gulp.task('jsBuild', function (done) {
 });
 
 function buildJS(key, done) {
-    return gulp.src(config.js.files[key])
+    return gulp.src(assets.js.files[key])
         .pipe(concat(key))
-        .pipe(minify({
+        .pipe(
+            !config.production ? util.noop() : minify({
                 mangle: true
             })
                 .on('error', function(err) {
@@ -57,14 +63,14 @@ function buildJS(key, done) {
                     done();
                 })
         )
-        .pipe(gulp.dest(config.js.destination))
+        .pipe(gulp.dest(assets.js.destination))
         .on('end', function() {
             done();
         });
 }
 
 gulp.task('cssBuild', function (done) {
-    let tasks = Object.keys(config.css.files).map(function(key) {
+    let tasks = Object.keys(assets.css.files).map(function(key) {
         return buildCSS(key, done);
     });
 
@@ -72,22 +78,21 @@ gulp.task('cssBuild', function (done) {
 });
 
 function buildCSS(key, done) {
-    return gulp.src(config.css.files[key])
+    return gulp.src(assets.css.files[key])
         .pipe(concat(key))
         .pipe(cleanCSS()
             .on('error', function(err) {
                 console.log("CSS minify error: " + err.cause.message + " in " + err.fileNam);
-                done();
             })
         )
-        .pipe(gulp.dest(config.css.destination))
+        .pipe(gulp.dest(assets.css.destination))
         .on('end', function() {
             done();
         });
 }
 
 gulp.task('imgBuild', function (done) {
-    let tasks = Object.keys(config.img.files).map(function(key) {
+    let tasks = Object.keys(assets.img.files).map(function(key) {
         return buildImg(key, done);
     });
 
@@ -95,18 +100,18 @@ gulp.task('imgBuild', function (done) {
 });
 
 function buildImg(key, done) {
-    return gulp.src(config.img.files[key])
+    return gulp.src(assets.img.files[key])
         .pipe(rename(function (path) {
             path.dirname = key;
         }))
-        .pipe(gulp.dest(config.img.destination))
+        .pipe(gulp.dest(assets.img.destination))
         .on('end', function() {
             done();
         });
 }
 
 gulp.task('filesBuild', function (done) {
-    let tasks = Object.keys(config.files.files).map(function(key) {
+    let tasks = Object.keys(assets.files.files).map(function(key) {
         return buildFiles(key, done);
     });
 
@@ -114,11 +119,11 @@ gulp.task('filesBuild', function (done) {
 });
 
 function buildFiles(key, done) {
-    return gulp.src(config.files.files[key])
+    return gulp.src(assets.files.files[key])
         .pipe(rename(function (path) {
             path.dirname = key;
         }))
-        .pipe(gulp.dest(config.files.destination))
+        .pipe(gulp.dest(assets.files.destination))
         .on('end', function() {
             done();
         });
@@ -168,7 +173,7 @@ gulp.task('assetsReload', function (done) {
         if (err) cb(err);
 
         try {
-            config = JSON.parse(data);
+            assets = JSON.parse(data);
         } catch(error) {
             done(error);
         }
@@ -187,26 +192,26 @@ gulp.task('stop', function (cb) {
 });
 
 gulp.task('watch', function (done) {
-    Object.keys(config.js.files).forEach((key) => {
-        gulp.watch(config.js.files[key], null, (done) => {
+    Object.keys(assets.js.files).forEach((key) => {
+        gulp.watch(assets.js.files[key], null, (done) => {
             buildJS(key, done);
         });
     });
 
-    Object.keys(config.css.files).forEach((key) => {
-        gulp.watch(config.css.files[key], null, (done) => {
+    Object.keys(assets.css.files).forEach((key) => {
+        gulp.watch(assets.css.files[key], null, (done) => {
             buildCSS(key, done);
         });
     });
 
-    Object.keys(config.img.files).forEach((key) => {
-        gulp.watch(config.img.files[key], null, (done) => {
+    Object.keys(assets.img.files).forEach((key) => {
+        gulp.watch(assets.img.files[key], null, (done) => {
             buildImg(key, done);
         });
     });
 
-    Object.keys(config.files.files).forEach((key) => {
-        gulp.watch(config.files.files[key], null, (done) => {
+    Object.keys(assets.files.files).forEach((key) => {
+        gulp.watch(assets.files.files[key], null, (done) => {
             buildFiles(key, done);
         });
     });
