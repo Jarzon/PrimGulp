@@ -13,7 +13,7 @@
   },
   "homepage": "https://github.com/Jarzon/PrimGulp#readme",
   "dependencies": {
-    "event-stream": "^3.3.4",
+    "merge-stream": "~1.0.1",
     "del": "^2.2.2",
     "uglify-es": "^3.3.9",
     "composer": "^1.0.0",

@@ -1,5 +1,4 @@
 let fs = require('fs');
-let es = require('event-stream');
 let del = require('del');
 let gulp = require('gulp');
 var util = require('gulp-util');
@@ -48,7 +47,9 @@ gulp.task('jsBuild', function (done) {
         return buildJS(key, done);
     });
 
-    es.concat.apply(null, tasks);
+    let stream = require('merge-stream')(...tasks);
+
+    return stream.isEmpty() ? null : stream;
 });
 
 function buildJS(key, done) {
@@ -74,7 +75,9 @@ gulp.task('cssBuild', function (done) {
         return buildCSS(key, done);
     });
 
-    es.concat.apply(null, tasks);
+    let stream = require('merge-stream')(...tasks);
+
+    return stream.isEmpty() ? null : stream;
 });
 
 function buildCSS(key, done) {
@@ -96,7 +99,9 @@ gulp.task('imgBuild', function (done) {
         return buildImg(key, done);
     });
 
-    es.concat.apply(null, tasks);
+    let stream = require('merge-stream')(...tasks);
+
+    return stream.isEmpty() ? null : stream;
 });
 
 function buildImg(key, done) {
@@ -115,7 +120,9 @@ gulp.task('filesBuild', function (done) {
         return buildFiles(key, done);
     });
 
-    es.concat.apply(null, tasks);
+    let stream = require('merge-stream')(...tasks);
+
+    return stream.isEmpty() ? null : stream;
 });
 
 function buildFiles(key, done) {
