@@ -6,23 +6,23 @@
   },
   "author": "Jarzon",
   "license": "MIT",
-  "version": "0.8.12",
+  "version": "0.8.14",
   "main": "gulpfile.js",
   "bugs": {
     "url": "https://github.com/Jarzon/PrimGulp/issues"
   },
   "homepage": "https://github.com/Jarzon/PrimGulp#readme",
   "dependencies": {
-    "merge-stream": "~1.0.1",
-    "del": "^2.2.2",
-    "uglify-es": "^3.3.9",
     "composer": "^1.0.0",
+    "del": "^2.2.2",
     "gulp": "~4.0.0",
-    "gulp-concat": "^2.6.1",
-    "gulp-uglify": "^3.0.0",
     "gulp-clean-css": "^3.9.2",
-    "gulp-rename": "^1.2.2",
+    "gulp-concat": "^2.6.1",
     "gulp-merge-json": "^1.0.0",
-    "gulp-util": "^3.0.8"
+    "gulp-rename": "^1.2.2",
+    "gulp-uglify": "^3.0.0",
+    "gulp-util": "^3.0.8",
+    "merge-stream": "~1.0.1",
+    "uglify-es": "^3.3.9"
   }
 }
