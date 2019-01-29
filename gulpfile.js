@@ -225,7 +225,9 @@ gulp.task('watch', function (done) {
 
     gulp.watch(['src/*/config/messages.json', 'vendor/*/*/config/messages.json'], gulp.series('msgBuild'));
     gulp.watch(['src/*/config/assets.json', 'vendor/*/*/config/assets.json'], gulp.series('assetsBuild'));
-    gulp.watch(['app/config/assets.json'], gulp.series('assetsReload'));
+    gulp.watch(['app/config/assets.json'], gulp.series('assetsReload', gulp.parallel('filesRemove', 'imgRemove', 'cssRemove', 'jsRemove'),
+        'msgBuild', 'filesBuild', 'imgBuild',
+        gulp.parallel('cssBuild', 'jsBuild')));
     gulp.watch(['.stop.primgulp'], gulp.series('stop'));
 
     done();
