@@ -1,7 +1,7 @@
 let fs = require('fs');
 let del = require('del');
 let gulp = require('gulp');
-var util = require('gulp-util');
+let util = require('gulp-util');
 let concat = require('gulp-concat');
 let rename = require("gulp-rename");
 let merge = require('gulp-merge-json');
@@ -11,6 +11,8 @@ let composer = require('gulp-uglify/composer');
 
 let minify = composer(uglifyjs, console);
 let cleanCSS = require('gulp-clean-css');
+
+let spawn = require('child_process').spawn;
 
 let config = {
     production: !!util.env.production
@@ -189,15 +191,6 @@ gulp.task('assetsReload', function (done) {
     });
 });
 
-gulp.task('stop', function (cb) {
-    fs.unlink('./.stop.primgulp', function(error) {
-        if (err) cb(error);
-    }.bind(cb));
-    console.log('Stop Gulp to update depedencies');
-    cb();
-    process.exit(0);
-});
-
 gulp.task('watch', function (done) {
     Object.keys(assets.js.files).forEach((key) => {
         gulp.watch(assets.js.files[key], null, (done) => {
@@ -228,16 +221,44 @@ gulp.task('watch', function (done) {
     gulp.watch(['app/config/assets.json'], gulp.series('assetsReload', gulp.parallel('filesRemove', 'imgRemove', 'cssRemove', 'jsRemove'),
         'msgBuild', 'filesBuild', 'imgBuild',
         gulp.parallel('cssBuild', 'jsBuild')));
-    gulp.watch(['.stop.primgulp'], gulp.series('stop'));
 
     done();
 });
 
-gulp.task('default',
-    gulp.series('assetsBuild', 'assetsReload',
+gulp.task('preventExecution', function (done) {
+        if(fs.existsSync('./.stop.primgulp') === true) {
+            gulp.watch('./.stop.primgulp', {events: 'unlink'}, function(ok) {
+                done();
+                ok();
+            });
+        } else {
+            done();
+        }
+    }
+);
+
+gulp.task('start',
+    gulp.series('preventExecution', 'assetsBuild', 'assetsReload',
         gulp.parallel('filesRemove', 'imgRemove', 'cssRemove', 'jsRemove'),
         'msgBuild', 'filesBuild', 'imgBuild',
         gulp.parallel('cssBuild', 'jsBuild'),
         'watch'
     )
 );
+
+gulp.task('default', function() {
+    let p;
+
+    gulp.watch('./.stop.primgulp', {events: 'add'}, spawnChildren);
+    spawnChildren();
+
+    function spawnChildren(done = null) {
+        // kill previous spawned process
+        if(p) { p.kill(); }
+
+        // `spawn` a child `gulp` process linked to the parent `stdio`
+        p = spawn('gulp', ['start'], {stdio: 'inherit'});
+
+        if(done) done();
+    }
+});
