@@ -1,7 +1,6 @@
 let fs = require('fs');
 let del = require('del');
 let gulp = require('gulp');
-let util = require('gulp-util');
 let concat = require('gulp-concat');
 let rename = require("gulp-rename");
 let merge = require('gulp-merge-json');
@@ -15,7 +14,7 @@ let cleanCSS = require('gulp-clean-css');
 let spawn = require('child_process').spawn;
 
 let config = {
-    production: !!util.env.production
+    production: process.env.production === undefined
 };
 
 let assets = {};
