@@ -14,7 +14,7 @@ let cleanCSS = require('gulp-clean-css');
 let spawn = require('child_process').spawn;
 
 let config = {
-    production: process.env.production === undefined
+    production: process.env.production !== undefined
 };
 
 let assets = {};
@@ -54,18 +54,22 @@ gulp.task('jsBuild', function (done) {
 });
 
 function buildJS(key, done) {
-    return gulp.src(assets.js.files[key])
-        .pipe(concat(key))
-        .pipe(
-            !config.production ? util.noop() : minify({
+    let stream = gulp.src(assets.js.files[key])
+        .pipe(concat(key));
+
+    if(config.production) {
+        stream.pipe(
+            minify({
                 mangle: true
             })
                 .on('error', function(err) {
                     console.log("JS minify error: " + err.cause.message + " in " + err.fileName);
                     done();
                 })
-        )
-        .pipe(gulp.dest(assets.js.destination))
+        );
+    }
+
+    return stream.pipe(gulp.dest(assets.js.destination))
         .on('end', function() {
             done();
         });
