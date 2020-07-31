@@ -14,7 +14,7 @@ let cleanCSS = require('gulp-clean-css');
 let spawn = require('child_process').spawn;
 
 let config = {
-    production: process.env.production !== undefined
+    production: process.argv[0] !== 'prod'
 };
 
 let assets = {};
