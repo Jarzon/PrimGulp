@@ -20,25 +20,25 @@ let config = {
 let assets = {};
 
 gulp.task('jsRemove', function (done) {
-    del(assets.js.destination);
+    del(assets.js.destination + '*');
 
     done();
 });
 
 gulp.task('cssRemove', function (done) {
-    del(assets.css.destination);
+    del(assets.css.destination + '*');
 
     done();
 });
 
 gulp.task('imgRemove', function (done) {
-    del(assets.img.destination);
+    del(assets.img.destination + '*');
 
     done();
 });
 
 gulp.task('filesRemove', function (done) {
-    del(assets.files.destination);
+    del(assets.files.destination + '*');
 
     done();
 });
