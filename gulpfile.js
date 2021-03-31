@@ -58,10 +58,17 @@ function buildJS(key, done) {
         .pipe(concat(key));
 
     if(config.production) {
+        let config = {
+            compress: true,
+            mangle: true
+        };
+
+        if(assets.js.config[key] !== undefined) {
+            config = assets.js.config[key];
+        }
+
         stream.pipe(
-            minify({
-                mangle: true
-            })
+            minify(config)
                 .on('error', function(err) {
                     console.log("JS minify error: " + err.cause.message + " in " + err.fileName);
                     done();

@@ -6,7 +6,7 @@
   },
   "author": "Jarzon",
   "license": "MIT",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "main": "gulpfile.js",
   "bugs": {
     "url": "https://github.com/Jarzon/PrimGulp/issues"
