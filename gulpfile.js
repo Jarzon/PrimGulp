@@ -259,6 +259,8 @@ gulp.task('start',
 gulp.task('default', function() {
     let p;
 
+    del('./.stop.primgulp');
+
     gulp.watch('./.stop.primgulp', {events: 'add'}, spawnChildren);
     spawnChildren();
 
