@@ -54,7 +54,7 @@ gulp.task('jsBuild', function (done) {
 });
 
 function buildJS(key, done) {
-    let stream = gulp.src(assets.js.files[key])
+    let stream = gulp.src(assets.js.files[key], {allowEmpty: true})
         .pipe(concat(key));
 
     if(config.production) {
