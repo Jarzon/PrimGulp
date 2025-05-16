@@ -63,7 +63,7 @@ function buildJS(key, done) {
             mangle: true
         };
 
-        if(assets.js.config[key] !== undefined) {
+        if(assets.js.config !== undefined && assets.js.config[key] !== undefined) {
             config = assets.js.config[key];
         }
 
