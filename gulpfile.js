@@ -4,6 +4,7 @@ let gulp = require('gulp');
 let concat = require('gulp-concat');
 let rename = require("gulp-rename");
 let merge = require('gulp-merge-json');
+const jsonminify = require('gulp-jsonminify');
 
 let uglifyjs = require('uglify-es');
 let composer = require('gulp-uglify/composer');
@@ -20,25 +21,31 @@ let config = {
 let assets = {};
 
 gulp.task('jsRemove', function (done) {
-    del(assets.js.destination + '*');
+    if(typeof assets.js !== 'undefined') del(assets.js.destination + '*');
 
     done();
 });
 
 gulp.task('cssRemove', function (done) {
-    del(assets.css.destination + '*');
+    if(typeof assets.css !== 'undefined') del(assets.css.destination + '*');
 
     done();
 });
 
 gulp.task('imgRemove', function (done) {
-    del(assets.img.destination + '*');
+    if(typeof assets.img !== 'undefined') del(assets.img.destination + '*');
 
     done();
 });
 
 gulp.task('filesRemove', function (done) {
-    del(assets.files.destination + '*');
+    if(typeof assets.files !== 'undefined') del(assets.files.destination + '*');
+
+    done();
+});
+
+gulp.task('jsonRemove', function (done) {
+    if(typeof assets.json !== 'undefined') del(assets.json.destination + '*');
 
     done();
 });
@@ -54,7 +61,7 @@ gulp.task('jsBuild', function (done) {
 });
 
 function buildJS(key, done) {
-    let stream = gulp.src(assets.js.files[key], {allowEmpty: true})
+    let stream = gulp.src(assets.js.files[key])
         .pipe(concat(key));
 
     if(config.production) {
@@ -82,7 +89,44 @@ function buildJS(key, done) {
         });
 }
 
+gulp.task('jsonBuild', function (done) {
+    if(typeof assets.json === 'undefined') {
+        done();
+        return null;
+    }
+    let tasks = Object.keys(assets.json.files).map(function(key) {
+        return buildJSON(key, done);
+    });
+
+    let stream = require('merge-stream')(...tasks);
+
+    return stream.isEmpty() ? null : stream;
+});
+
+function buildJSON(key, done) {
+    let stream = gulp.src(assets.json.files[key])
+        .pipe(concat(key));
+
+    if(config.production) {
+
+        stream.pipe(jsonminify())
+            .on('error', function(err) {
+                console.log("JSON minify error: " + err.cause.message + " in " + err.fileName);
+                done();
+            });
+    }
+
+    return stream.pipe(gulp.dest(assets.json.destination))
+        .on('end', function() {
+            done();
+        });
+}
+
 gulp.task('cssBuild', function (done) {
+    if(typeof assets.css === 'undefined') {
+        done();
+        return null;
+    }
     let tasks = Object.keys(assets.css.files).map(function(key) {
         return buildCSS(key, done);
     });
@@ -107,6 +151,10 @@ function buildCSS(key, done) {
 }
 
 gulp.task('imgBuild', function (done) {
+    if(typeof assets.img === 'undefined') {
+        done();
+        return null;
+    }
     let tasks = Object.keys(assets.img.files).map(function(key) {
         return buildImg(key, done);
     });
@@ -128,6 +176,10 @@ function buildImg(key, done) {
 }
 
 gulp.task('filesBuild', function (done) {
+    if(typeof assets.files === 'undefined') {
+        done();
+        return null;
+    }
     let tasks = Object.keys(assets.files.files).map(function(key) {
         return buildFiles(key, done);
     });
@@ -202,35 +254,51 @@ gulp.task('assetsReload', function (done) {
 });
 
 gulp.task('watch', function (done) {
-    Object.keys(assets.js.files).forEach((key) => {
-        gulp.watch(assets.js.files[key], null, (done) => {
-            buildJS(key, done);
+    if(typeof assets.js !== 'undefined') {
+        Object.keys(assets.js.files).forEach((key) => {
+            gulp.watch(assets.js.files[key], null, (done) => {
+                buildJS(key, done);
+            });
         });
-    });
+    }
 
-    Object.keys(assets.css.files).forEach((key) => {
-        gulp.watch(assets.css.files[key], null, (done) => {
-            buildCSS(key, done);
+    if(typeof assets.json !== 'undefined') {
+        Object.keys(assets.json.files).forEach((key) => {
+            gulp.watch(assets.json.files[key], null, (done) => {
+                buildJSON(key, done);
+            });
         });
-    });
+    }
 
-    Object.keys(assets.img.files).forEach((key) => {
-        gulp.watch(assets.img.files[key], null, (done) => {
-            buildImg(key, done);
+    if(typeof assets.css !== 'undefined') {
+        Object.keys(assets.css.files).forEach((key) => {
+            gulp.watch(assets.css.files[key], null, (done) => {
+                buildCSS(key, done);
+            });
         });
-    });
+    }
 
-    Object.keys(assets.files.files).forEach((key) => {
-        gulp.watch(assets.files.files[key], null, (done) => {
-            buildFiles(key, done);
+    if(typeof assets.img !== 'undefined') {
+        Object.keys(assets.img.files).forEach((key) => {
+            gulp.watch(assets.img.files[key], null, (done) => {
+                buildImg(key, done);
+            });
         });
-    });
+    }
+
+    if(typeof assets.files !== 'undefined') {
+        Object.keys(assets.files.files).forEach((key) => {
+            gulp.watch(assets.files.files[key], null, (done) => {
+                buildFiles(key, done);
+            });
+        });
+    }
 
     gulp.watch(['src/*/config/messages.json', 'vendor/*/*/config/messages.json'], gulp.series('msgBuild'));
     gulp.watch(['src/*/config/assets.json', 'vendor/*/*/config/assets.json'], gulp.series('assetsBuild'));
-    gulp.watch(['app/config/assets.json'], gulp.series('assetsReload', gulp.parallel('filesRemove', 'imgRemove', 'cssRemove', 'jsRemove'),
+    gulp.watch(['app/config/assets.json'], gulp.series('assetsReload', gulp.parallel('filesRemove', 'imgRemove', 'cssRemove', 'jsRemove', 'jsonRemove'),
         'msgBuild', 'filesBuild', 'imgBuild',
-        gulp.parallel('cssBuild', 'jsBuild')));
+        gulp.parallel('cssBuild', 'jsBuild', 'jsonBuild')));
 
     done();
 });
@@ -249,9 +317,9 @@ gulp.task('preventExecution', function (done) {
 
 gulp.task('start',
     gulp.series('preventExecution', 'assetsBuild', 'assetsReload',
-        gulp.parallel('filesRemove', 'imgRemove', 'cssRemove', 'jsRemove'),
+        gulp.parallel('filesRemove', 'imgRemove', 'cssRemove', 'jsRemove', 'jsonRemove'),
         'msgBuild', 'filesBuild', 'imgBuild',
-        gulp.parallel('cssBuild', 'jsBuild'),
+        gulp.parallel('cssBuild', 'jsBuild', 'jsonBuild'),
         'watch'
     )
 );
