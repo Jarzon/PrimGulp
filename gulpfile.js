@@ -253,52 +253,63 @@ gulp.task('assetsReload', function (done) {
     });
 });
 
+const watchers = [];
+
 gulp.task('watch', function (done) {
     if(typeof assets.js !== 'undefined') {
         Object.keys(assets.js.files).forEach((key) => {
-            gulp.watch(assets.js.files[key], null, (done) => {
+            watchers.push(gulp.watch(assets.js.files[key], null, (done) => {
                 buildJS(key, done);
-            });
+            }));
         });
     }
 
     if(typeof assets.json !== 'undefined') {
         Object.keys(assets.json.files).forEach((key) => {
-            gulp.watch(assets.json.files[key], null, (done) => {
+            watchers.push(gulp.watch(assets.json.files[key], null, (done) => {
                 buildJSON(key, done);
-            });
+            }));
         });
     }
 
     if(typeof assets.css !== 'undefined') {
         Object.keys(assets.css.files).forEach((key) => {
-            gulp.watch(assets.css.files[key], null, (done) => {
+            watchers.push(gulp.watch(assets.css.files[key], null, (done) => {
                 buildCSS(key, done);
-            });
+            }));
         });
     }
 
     if(typeof assets.img !== 'undefined') {
         Object.keys(assets.img.files).forEach((key) => {
-            gulp.watch(assets.img.files[key], null, (done) => {
+            watchers.push(gulp.watch(assets.img.files[key], null, (done) => {
                 buildImg(key, done);
-            });
+            }));
         });
     }
 
     if(typeof assets.files !== 'undefined') {
         Object.keys(assets.files.files).forEach((key) => {
-            gulp.watch(assets.files.files[key], null, (done) => {
+            watchers.push(gulp.watch(assets.files.files[key], null, (done) => {
                 buildFiles(key, done);
-            });
+            }));
         });
     }
 
-    gulp.watch(['src/*/config/messages.json', 'vendor/*/*/config/messages.json'], gulp.series('msgBuild'));
-    gulp.watch(['src/*/config/assets.json', 'vendor/*/*/config/assets.json'], gulp.series('assetsBuild'));
-    gulp.watch(['app/config/assets.json'], gulp.series('assetsReload', gulp.parallel('filesRemove', 'imgRemove', 'cssRemove', 'jsRemove', 'jsonRemove'),
-        'msgBuild', 'filesBuild', 'imgBuild',
-        gulp.parallel('cssBuild', 'jsBuild', 'jsonBuild')));
+    watchers.push(gulp.watch(['src/*/config/messages.json', 'vendor/*/*/config/messages.json'], gulp.series('msgBuild')));
+    watchers.push(gulp.watch(['src/*/config/assets.json', 'vendor/*/*/config/assets.json'], gulp.series('assetsBuild')));
+    watchers.push(gulp.watch(['app/config/assets.json'],
+        gulp.series(
+            'destroyWatchers',
+            'assetsReload',
+            gulp.parallel('filesRemove', 'imgRemove', 'cssRemove', 'jsRemove', 'jsonRemove'),
+            'msgBuild',
+            'filesBuild',
+            'imgBuild',
+            gulp.parallel('cssBuild', 'jsBuild', 'jsonBuild'),
+            'watch'
+        )
+    ));
 
     done();
 });
@@ -315,10 +326,23 @@ gulp.task('preventExecution', function (done) {
     }
 );
 
+gulp.task('destroyWatchers', function(done) {
+    watchers.forEach(w => w.close());
+    watchers.length = 0;
+    done();
+
+    if(done) done();
+});
+
 gulp.task('start',
-    gulp.series('preventExecution', 'assetsBuild', 'assetsReload',
+    gulp.series(
+        'preventExecution',
+        'assetsBuild',
+        'assetsReload',
         gulp.parallel('filesRemove', 'imgRemove', 'cssRemove', 'jsRemove', 'jsonRemove'),
-        'msgBuild', 'filesBuild', 'imgBuild',
+        'msgBuild',
+        'filesBuild',
+        'imgBuild',
         gulp.parallel('cssBuild', 'jsBuild', 'jsonBuild'),
         'watch'
     )
