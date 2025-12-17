@@ -301,12 +301,15 @@ gulp.task('watch', function (done) {
     watchers.push(gulp.watch(['app/config/assets.json'],
         gulp.series(
             'destroyWatchers',
-            'assetsReload',
+            gulp.parallel(
+                gulp.series(
+                    'assetsBuild',
+                    'assetsReload',
+                ),
+                'msgBuild'
+            ),
             gulp.parallel('filesRemove', 'imgRemove', 'cssRemove', 'jsRemove', 'jsonRemove'),
-            'msgBuild',
-            'filesBuild',
-            'imgBuild',
-            gulp.parallel('cssBuild', 'jsBuild', 'jsonBuild'),
+            gulp.parallel('cssBuild', 'jsBuild', 'jsonBuild', 'filesBuild', 'imgBuild'),
             'watch'
         )
     ));
@@ -337,13 +340,15 @@ gulp.task('destroyWatchers', function(done) {
 gulp.task('start',
     gulp.series(
         'preventExecution',
-        'assetsBuild',
-        'assetsReload',
+        gulp.parallel(
+            gulp.series(
+                'assetsBuild',
+                'assetsReload',
+            ),
+            'msgBuild'
+        ),
         gulp.parallel('filesRemove', 'imgRemove', 'cssRemove', 'jsRemove', 'jsonRemove'),
-        'msgBuild',
-        'filesBuild',
-        'imgBuild',
-        gulp.parallel('cssBuild', 'jsBuild', 'jsonBuild'),
+        gulp.parallel('cssBuild', 'jsBuild', 'jsonBuild', 'filesBuild', 'imgBuild'),
         'watch'
     )
 );
