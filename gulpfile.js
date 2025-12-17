@@ -21,31 +21,31 @@ let config = {
 let assets = {};
 
 gulp.task('jsRemove', function (done) {
-    if(typeof assets.js !== 'undefined') del(assets.js.destination + '*');
+    if(typeof assets.js !== 'undefined') del(assets.js.destination + '/*');
 
     done();
 });
 
 gulp.task('cssRemove', function (done) {
-    if(typeof assets.css !== 'undefined') del(assets.css.destination + '*');
+    if(typeof assets.css !== 'undefined') del(assets.css.destination + '/*');
 
     done();
 });
 
 gulp.task('imgRemove', function (done) {
-    if(typeof assets.img !== 'undefined') del(assets.img.destination + '*');
+    if(typeof assets.img !== 'undefined') del(assets.img.destination + '/*');
 
     done();
 });
 
 gulp.task('filesRemove', function (done) {
-    if(typeof assets.files !== 'undefined') del(assets.files.destination + '*');
+    if(typeof assets.files !== 'undefined') del(assets.files.destination + '/*');
 
     done();
 });
 
 gulp.task('jsonRemove', function (done) {
-    if(typeof assets.json !== 'undefined') del(assets.json.destination + '*');
+    if(typeof assets.json !== 'undefined') del(assets.json.destination + '/*');
 
     done();
 });
