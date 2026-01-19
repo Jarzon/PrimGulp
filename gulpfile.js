@@ -61,7 +61,22 @@ gulp.task('jsBuild', function (done) {
 });
 
 function buildJS(key, done) {
-    let stream = gulp.src(assets.js.files[key], {allowEmpty: true})
+    let localFiles = {};
+
+    for (let i = assets.js.files[key].length-1; i >= 0; i--) {
+        let chunks = assets.js.files[key][i].split('/');
+        if(chunks[0] === 'src') {
+            chunks.shift();
+            chunks[0] = chunks[0].toLowerCase();
+        } else {
+            chunks.shift(); // remove vendor root folder
+            chunks.shift(); // remove actual vendor folder
+        }
+        let path = chunks.join('/');
+        localFiles[path] = assets.js.files[key][i];
+    }
+
+    let stream = gulp.src(Object.values(localFiles), {allowEmpty: true})
         .pipe(concat(key));
 
     if(config.production) {
@@ -299,6 +314,7 @@ gulp.task('watch', function (done) {
     watchers.push(gulp.watch(['src/*/config/messages.json', 'vendor/*/*/config/messages.json'], gulp.series('msgBuild')));
     watchers.push(gulp.watch(['src/*/config/assets.json', 'vendor/*/*/config/assets.json'], gulp.series('assetsBuild')));
     watchers.push(gulp.watch(['app/config/assets.json'],
+
         gulp.series(
             'destroyWatchers',
             gulp.parallel(
