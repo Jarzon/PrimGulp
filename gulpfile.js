@@ -76,7 +76,9 @@ function buildJS(key, done) {
         localFiles[path] = assets.js.files[key][i];
     }
 
-    let stream = gulp.src(Object.values(localFiles), {allowEmpty: true})
+    const files = Object.values(localFiles).reverse();
+
+    let stream = gulp.src(files, {allowEmpty: true})
         .pipe(concat(key));
 
     if(config.production) {
